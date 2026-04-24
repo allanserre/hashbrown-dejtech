@@ -1,1 +1,88 @@
 /* You can add global styles to this file, and also import other style files */
+
+/* Global Design System */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --c-primary: #6366f1;
+  --c-primary-dark: #4f46e5;
+  --c-primary-light: #e0e7ff;
+  --c-primary-fg: #ffffff;
+
+  --c-sidebar: #0f172a;
+  --c-sidebar-hover: #1e293b;
+  --c-sidebar-active: #4338ca;
+  --c-sidebar-muted: #94a3b8;
+  --c-sidebar-fg: #f1f5f9;
+
+  --c-bg: #f1f5f9;
+  --c-surface: #ffffff;
+  --c-border: #e2e8f0;
+
+  --c-text: #0f172a;
+  --c-text-muted: #64748b;
+
+  --c-success: #22c55e;
+  --c-success-bg: #dcfce7;
+  --c-success-fg: #166534;
+
+  --c-danger: #ef4444;
+  --c-danger-bg: #fee2e2;
+  --c-danger-fg: #991b1b;
+
+  --c-warning: #f59e0b;
+  --c-warning-bg: #fef3c7;
+  --c-warning-fg: #92400e;
+
+  --c-info: #3b82f6;
+  --c-info-bg: #dbeafe;
+  --c-info-fg: #1e40af;
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / .05);
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / .1), 0 1px 2px -1px rgb(0 0 0 / .1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / .1), 0 2px 4px -2px rgb(0 0 0 / .1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / .1), 0 4px 6px -4px rgb(0 0 0 / .1);
+
+  --radius-sm: 4px;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  --sidebar-w: 260px;
+  --sidebar-w-collapsed: 68px;
+  --header-h: 64px;
+
+  --transition-fast: 150ms ease;
+  --transition: 220ms ease;
+  --transition-slow: 300ms ease;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background: var(--c-bg);
+  color: var(--c-text);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 { line-height: 1.25; }
+a { color: inherit; text-decoration: none; }
+button { cursor: pointer; font: inherit; border: none; background: none; }
+input, select, textarea { font: inherit; }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

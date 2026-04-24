@@ -1,0 +1,144 @@
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">Utilisateurs</h1>
+      <p class="page-sub">{{ filteredUsers().length }} utilisateur(s) trouvé(s)</p>
+    </div>
+    <div class="page-header__actions">
+      <button class="btn btn--primary" type="button">
+        <app-icon name="plus" />
+        Nouvel utilisateur
+      </button>
+    </div>
+  </header>
+
+  <!-- Filters -->
+  <div class="toolbar" role="search">
+    <div class="search-box">
+      <span class="search-box__icon" aria-hidden="true"><app-icon name="search" /></span>
+      <input
+        type="search"
+        class="search-box__input"
+        placeholder="Rechercher un utilisateur…"
+        aria-label="Rechercher un utilisateur"
+        [value]="searchQuery()"
+        (input)="onSearch($any($event.target).value)"
+      />
+    </div>
+    <div class="filter-group" role="group" aria-label="Filtrer par statut">
+      <label class="sr-only" for="status-filter">Statut</label>
+      <select
+        id="status-filter"
+        class="select"
+        [value]="statusFilter()"
+        (change)="onFilterStatus($any($event.target).value)"
+      >
+        <option value="all">Tous les statuts</option>
+        <option value="active">Actif</option>
+        <option value="inactive">Inactif</option>
+        <option value="pending">En attente</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="card table-card">
+    <div class="table-wrap" role="region" aria-label="Liste des utilisateurs" tabindex="0">
+      <table class="table" aria-live="polite">
+        <caption class="sr-only">Liste des utilisateurs — {{ filteredUsers().length }} résultat(s)</caption>
+        <thead>
+          <tr>
+            <th scope="col">Utilisateur</th>
+            <th scope="col">Rôle</th>
+            <th scope="col">Statut</th>
+            <th scope="col">Inscrit le</th>
+            <th scope="col"><span class="sr-only">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (pagedUsers().length === 0) {
+            <tr>
+              <td colspan="5" class="table__empty">Aucun utilisateur trouvé</td>
+            </tr>
+          }
+          @for (user of pagedUsers(); track user.id) {
+            <tr>
+              <td>
+                <div class="user-cell">
+                  <div class="user-avatar" aria-hidden="true">{{ user.initials }}</div>
+                  <div class="user-info">
+                    <span class="user-name">{{ user.name }}</span>
+                    <span class="user-email">{{ user.email }}</span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="role-badge">{{ user.role }}</span>
+              </td>
+              <td>
+                <span
+                  class="status-badge"
+                  [class.status-badge--active]="user.status === 'active'"
+                  [class.status-badge--inactive]="user.status === 'inactive'"
+                  [class.status-badge--pending]="user.status === 'pending'"
+                >
+                  {{ user.status === 'active' ? 'Actif' : user.status === 'inactive' ? 'Inactif' : 'En attente' }}
+                </span>
+              </td>
+              <td class="cell--muted">{{ user.joinedAt }}</td>
+              <td>
+                <div class="actions">
+                  <button class="action-btn action-btn--edit" type="button" [attr.aria-label]="'Modifier ' + user.name">
+                    <app-icon name="edit" />
+                  </button>
+                  <button class="action-btn action-btn--delete" type="button" [attr.aria-label]="'Supprimer ' + user.name">
+                    <app-icon name="trash" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages() > 1) {
+      <nav class="pagination" aria-label="Pagination">
+        <button
+          class="pag-btn"
+          type="button"
+          (click)="goToPage(currentPage() - 1)"
+          [attr.disabled]="currentPage() === 1 ? true : null"
+          aria-label="Page précédente"
+        >
+          <app-icon name="chevron-left" />
+        </button>
+
+        @for (page of pages(); track page) {
+          <button
+            class="pag-btn"
+            [class.pag-btn--active]="page === currentPage()"
+            type="button"
+            (click)="goToPage(page)"
+            [attr.aria-label]="'Page ' + page"
+            [attr.aria-current]="page === currentPage() ? 'page' : null"
+          >
+            {{ page }}
+          </button>
+        }
+
+        <button
+          class="pag-btn"
+          type="button"
+          (click)="goToPage(currentPage() + 1)"
+          [attr.disabled]="currentPage() === totalPages() ? true : null"
+          aria-label="Page suivante"
+        >
+          <app-icon name="chevron-right" />
+        </button>
+      </nav>
+    }
+  </div>
+</div>
+

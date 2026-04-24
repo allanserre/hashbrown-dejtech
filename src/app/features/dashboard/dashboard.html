@@ -1,0 +1,73 @@
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">Dashboard</h1>
+      <p class="page-sub">Bienvenue ! Voici un aperçu de votre activité.</p>
+    </div>
+    <div class="page-header__actions">
+      <button class="btn btn--outline" type="button">
+        <app-icon name="download" />
+        Exporter
+      </button>
+    </div>
+  </header>
+
+  <!-- ── Stats ── -->
+  <section aria-label="Indicateurs clés" class="stats-grid">
+    @for (stat of stats; track stat.label) {
+      <app-stat-card
+        [label]="stat.label"
+        [value]="stat.value"
+        [change]="stat.change"
+        [positive]="stat.positive"
+        [icon]="stat.icon"
+        [color]="stat.color"
+      />
+    }
+  </section>
+
+  <!-- ── Charts ── -->
+  <div class="charts-row">
+    <section class="card chart-card" aria-labelledby="bar-chart-title">
+      <div class="card__header">
+        <h2 id="bar-chart-title" class="card__title">Revenus mensuels (€)</h2>
+        <span class="badge badge--primary">2026</span>
+      </div>
+      <app-bar-chart [data]="barData" title="Revenus mensuels en euros" />
+    </section>
+
+    <section class="card chart-card" aria-labelledby="line-chart-title">
+      <div class="card__header">
+        <h2 id="line-chart-title" class="card__title">Trafic hebdomadaire</h2>
+        <span class="badge badge--info">Visites</span>
+      </div>
+      <app-line-chart [data]="lineData" title="Trafic hebdomadaire en nombre de visites" />
+    </section>
+  </div>
+
+  <!-- ── Activity ── -->
+  <section class="card" aria-labelledby="activity-title">
+    <div class="card__header">
+      <h2 id="activity-title" class="card__title">Activité récente</h2>
+    </div>
+    <ol class="activity-list" aria-label="Fil d'activité récente">
+      @for (item of activities; track item.id) {
+        <li class="activity-item">
+          <div class="activity-avatar" [class]="'activity-avatar--' + item.type" aria-hidden="true">
+            {{ item.initials }}
+          </div>
+          <div class="activity-body">
+            <p class="activity-text">
+              <strong>{{ item.user }}</strong>
+              {{ item.action }}
+              <em>{{ item.target }}</em>
+            </p>
+            <time class="activity-time">{{ item.time }}</time>
+          </div>
+          <span class="activity-dot" [class]="'activity-dot--' + item.type" aria-hidden="true"></span>
+        </li>
+      }
+    </ol>
+  </section>
+</div>
+

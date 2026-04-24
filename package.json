@@ -6,7 +6,9 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "server": "tsx --env-file=.env server/src/main.ts",
+    "server:watch": "tsx watch --env-file=.env server/src/main.ts"
   },
   "private": true,
   "packageManager": "npm@10.8.2",
@@ -17,6 +19,12 @@
     "@angular/forms": "^21.2.0",
     "@angular/platform-browser": "^21.2.0",
     "@angular/router": "^21.2.0",
+    "@hashbrownai/angular": "^0.4.1",
+    "@hashbrownai/core": "^0.4.1",
+    "@hashbrownai/openai": "^0.4.1",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "openai": "^6.33.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },
@@ -24,8 +32,12 @@
     "@angular/build": "^21.2.6",
     "@angular/cli": "^21.2.6",
     "@angular/compiler-cli": "^21.2.0",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.5.2",
     "jsdom": "^28.0.0",
     "prettier": "^3.8.1",
+    "tsx": "^4.21.0",
     "typescript": "~5.9.2",
     "vitest": "^4.0.8"
   }

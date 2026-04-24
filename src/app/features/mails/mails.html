@@ -1,0 +1,155 @@
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">
+        Messagerie
+        @if (unreadCount() > 0) {
+          <span class="unread-badge" aria-label="{{ unreadCount() }} messages non lus">{{ unreadCount() }}</span>
+        }
+      </h1>
+    </div>
+    <div class="page-header__actions">
+      <button class="btn btn--primary" type="button">
+        <app-icon name="plus" />
+        Nouveau message
+      </button>
+    </div>
+  </header>
+
+  <div class="mail-layout">
+    <!-- Left panel -->
+    <aside class="mail-sidebar" aria-label="Dossiers de messagerie">
+
+      <!-- Tabs -->
+      <div class="mail-tabs" role="tablist" aria-label="Dossiers">
+        <button
+          class="mail-tab" role="tab"
+          [class.mail-tab--active]="activeTab() === 'inbox'"
+          [attr.aria-selected]="activeTab() === 'inbox'"
+          (click)="setTab('inbox')" type="button"
+        >
+          <app-icon name="mail" /> Boîte de réception
+          @if (unreadCount() > 0) {
+            <span class="tab-count" aria-hidden="true">{{ unreadCount() }}</span>
+          }
+        </button>
+        <button
+          class="mail-tab" role="tab"
+          [class.mail-tab--active]="activeTab() === 'sent'"
+          [attr.aria-selected]="activeTab() === 'sent'"
+          (click)="setTab('sent')" type="button"
+        >
+          <app-icon name="reply" /> Envoyés
+        </button>
+        <button
+          class="mail-tab" role="tab"
+          [class.mail-tab--active]="activeTab() === 'draft'"
+          [attr.aria-selected]="activeTab() === 'draft'"
+          (click)="setTab('draft')" type="button"
+        >
+          <app-icon name="edit" /> Brouillons
+        </button>
+      </div>
+
+      <!-- Search -->
+      <div class="search-box">
+        <span class="search-box__icon" aria-hidden="true"><app-icon name="search" /></span>
+        <input
+          type="search"
+          class="search-box__input"
+          placeholder="Rechercher…"
+          aria-label="Rechercher dans les messages"
+          [value]="searchQuery()"
+          (input)="onSearch($any($event.target).value)"
+        />
+      </div>
+
+      <!-- Mail list -->
+      <ul class="mail-list" role="listbox" aria-label="Messages" aria-live="polite">
+        @if (filteredMails().length === 0) {
+          <li class="mail-empty">Aucun message</li>
+        }
+        @for (mail of filteredMails(); track mail.id) {
+          <li
+            class="mail-item"
+            [class.mail-item--unread]="!mail.read"
+            [class.mail-item--selected]="mail.id === selectedId()"
+            role="option"
+            [attr.aria-selected]="mail.id === selectedId()"
+            (click)="openMail(mail)"
+            (keydown.enter)="openMail(mail)"
+            (keydown.space)="openMail(mail)"
+            tabindex="0"
+            [attr.aria-label]="(mail.read ? '' : 'Non lu — ') + mail.sender + ' : ' + mail.subject"
+          >
+            <div class="mail-avatar" aria-hidden="true">{{ mail.initials }}</div>
+            <div class="mail-content">
+              <div class="mail-meta">
+                <span class="mail-sender">{{ mail.sender }}</span>
+                <span class="mail-date">{{ mail.date }}</span>
+              </div>
+              <span class="mail-subject">{{ mail.subject }}</span>
+              <span class="mail-preview">{{ mail.preview }}</span>
+            </div>
+            <button
+              class="star-btn"
+              [class.star-btn--active]="mail.starred"
+              type="button"
+              (click)="toggleStar(mail, $event)"
+              [attr.aria-label]="mail.starred ? 'Retirer l\'étoile de ' + mail.subject : 'Marquer ' + mail.subject + ' d\'une étoile'"
+              [attr.aria-pressed]="mail.starred"
+            >
+              <app-icon [name]="mail.starred ? 'star-filled' : 'star'" />
+            </button>
+          </li>
+        }
+      </ul>
+    </aside>
+
+    <!-- Right panel: mail detail -->
+    <section
+      class="mail-detail"
+      [class.mail-detail--open]="selectedMail() !== null"
+      aria-label="Contenu du message"
+      aria-live="polite"
+    >
+      @if (selectedMail(); as mail) {
+        <div class="detail-inner">
+          <div class="detail-header">
+            <div>
+              <h2 class="detail-subject">{{ mail.subject }}</h2>
+              <div class="detail-meta">
+                <div class="detail-sender-info">
+                  <div class="detail-avatar" aria-hidden="true">{{ mail.initials }}</div>
+                  <div>
+                    <strong>{{ mail.sender }}</strong>
+                    <span class="detail-date">{{ mail.date }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="detail-actions">
+              <button class="btn btn--outline btn--sm" type="button">
+                <app-icon name="reply" /> Répondre
+              </button>
+              <button class="icon-action-btn" type="button" aria-label="Fermer le message" (click)="closeMail()">
+                <app-icon name="trash" />
+              </button>
+            </div>
+          </div>
+          <div class="detail-body" role="article">
+            <p>{{ mail.preview }}</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco.</p>
+            <p>Cordialement,<br /><strong>{{ mail.sender }}</strong></p>
+          </div>
+        </div>
+      } @else {
+        <div class="detail-empty" role="status">
+          <app-icon name="mail" />
+          <p>Sélectionnez un message pour l'afficher</p>
+        </div>
+      }
+    </section>
+  </div>
+</div>
+

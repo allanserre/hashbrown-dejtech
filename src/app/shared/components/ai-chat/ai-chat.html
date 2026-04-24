@@ -1,0 +1,116 @@
+<div class="chat-container">
+
+  <!-- ── Messages ── -->
+  <div
+    class="messages"
+    role="log"
+    aria-live="polite"
+    aria-label="Conversation avec l'assistant IA"
+    #messagesEl
+  >
+    <!-- Empty state with suggestions -->
+    @if (messages().length === 0 && !isSending()) {
+      <div class="empty-state">
+        <div class="empty-icon" aria-hidden="true">
+          <app-icon name="sparkles" />
+        </div>
+        <p class="empty-title">Assistant DejTech IA</p>
+        <p class="empty-sub">
+          Posez-moi des questions sur votre dashboard, vos données ou demandez de l'aide.
+        </p>
+        <ul class="suggestions" aria-label="Suggestions de questions">
+          @for (s of suggestions; track s) {
+            <li>
+              <button
+                class="suggestion-btn"
+                type="button"
+                (click)="sendSuggestion(s)"
+                [attr.disabled]="isLoading() ? '' : null"
+              >
+                {{ s }}
+              </button>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+
+    <!-- Messages list -->
+    @for (msg of messages(); track $index) {
+      @if (msg.role === 'user') {
+        <article class="msg msg--user" aria-label="Votre message">
+          <div class="msg-bubble msg-bubble--user">{{ msg.content }}</div>
+        </article>
+      } @else if (msg.role === 'assistant') {
+        <article class="msg msg--assistant" aria-label="Réponse de l'assistant">
+          <div class="msg-avatar" aria-hidden="true">
+            <app-icon name="bot" />
+          </div>
+          <div class="msg-bubble msg-bubble--assistant">
+            @if (msg.content) {
+              <hb-magic-text [text]="msg.content" />
+            }
+          </div>
+        </article>
+      } @else if (msg.role === 'error') {
+        <div class="msg msg--error" role="alert">
+          <app-icon name="x" />
+          <p>Une erreur s'est produite. Veuillez réessayer.</p>
+        </div>
+      }
+    }
+
+    <!-- Typing indicator -->
+    @if (isTyping()) {
+      <div class="msg msg--assistant" aria-label="L'assistant réfléchit…">
+        <div class="msg-avatar" aria-hidden="true">
+          <app-icon name="bot" />
+        </div>
+        <div class="msg-bubble msg-bubble--assistant msg-bubble--typing" aria-hidden="true">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+      </div>
+    }
+
+    <!-- Connection error -->
+    @if (sendingError()) {
+      <div class="error-banner" role="alert">
+        <app-icon name="x" />
+        <p>Erreur de connexion. Vérifiez la configuration de votre endpoint <code>/api/chat</code>.</p>
+      </div>
+    }
+  </div>
+
+  <!-- ── Input area ── -->
+  <div class="input-area">
+    <label class="sr-only" for="chat-input">Votre message</label>
+    <textarea
+      id="chat-input"
+      class="chat-textarea"
+      placeholder="Posez une question…"
+      rows="1"
+      [value]="inputText()"
+      (input)="inputText.set($any($event.target).value)"
+      (keydown)="onKeydown($event)"
+      [attr.disabled]="isLoading() ? '' : null"
+      aria-label="Message à envoyer à l'assistant"
+    ></textarea>
+    <button
+      class="send-btn"
+      type="button"
+      (click)="sendMessage()"
+      [attr.disabled]="(!inputText().trim() || isLoading()) ? '' : null"
+      aria-label="Envoyer le message"
+    >
+      @if (isLoading()) {
+        <span class="spinner" aria-hidden="true"></span>
+      } @else {
+        <app-icon name="send" />
+      }
+    </button>
+  </div>
+
+</div>
+
