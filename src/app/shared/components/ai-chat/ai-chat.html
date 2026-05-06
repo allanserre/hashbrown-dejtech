@@ -9,7 +9,7 @@
     #messagesEl
   >
     <!-- Empty state with suggestions -->
-    @if (messages().length === 0 && !isSending()) {
+    @if (messages().length === 0) {
       <div class="empty-state">
         <div class="empty-icon" aria-hidden="true">
           <app-icon name="sparkles" />
@@ -47,8 +47,12 @@
             <app-icon name="bot" />
           </div>
           <div class="msg-bubble msg-bubble--assistant">
+            {{ msg | json }}
+            @if (msg.toolCalls.length > 0) {
+              {{ msg.toolCalls }}
+            }
             @if (msg.content) {
-              <hb-magic-text [text]="msg.content" />
+              <hb-render-message [message]="msg" />
             }
           </div>
         </article>
@@ -75,12 +79,6 @@
     }
 
     <!-- Connection error -->
-    @if (sendingError()) {
-      <div class="error-banner" role="alert">
-        <app-icon name="x" />
-        <p>Erreur de connexion. Vérifiez la configuration de votre endpoint <code>/api/chat</code>.</p>
-      </div>
-    }
   </div>
 
   <!-- ── Input area ── -->

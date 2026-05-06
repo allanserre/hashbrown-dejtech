@@ -44,6 +44,22 @@ export const dataRecordSchema = s.object('un enregistrement produit', {
   updatedAt: s.string('date de dernière mise à jour au format JJ/MM/AAAA'),
 });
 
+// ── LineChart ─────────────────────────────────────────────────────────────────
+
+/** Un point de donnée du graphique linéaire */
+export const lineDataSchema = s.object('un point de donnée du graphique linéaire', {
+  label: s.string('libellé affiché sur l\'axe X, ex : "Lun", "Jan", "S01"'),
+  value: s.number('valeur numérique du point'),
+});
+
+/** Schema des inputs du composant LineChartComponent */
+export const lineChartInputSchema = s.object('configuration du graphique linéaire', {
+  title: s.string('titre accessible du graphique, ex : "Évolution du chiffre d\'affaires"'),
+  data:  s.array('série de points à afficher sur le graphique', lineDataSchema),
+});
+
+// ── DataRecord ────────────────────────────────────────────────────────────────
+
 /** Paramètres pour l'outil getFilteredData */
 export const filterParamsSchema = s.object('critères de filtrage des données', {
   search: s.string('texte recherché dans le nom ou la catégorie (chaîne vide = pas de filtre)'),

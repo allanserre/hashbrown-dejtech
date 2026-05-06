@@ -24,6 +24,8 @@
     "@hashbrownai/openai": "^0.4.1",
     "cors": "^2.8.6",
     "express": "^5.2.1",
+    "marked": "^17.0.0",
+    "ngx-markdown": "^21.2.0",
     "openai": "^6.33.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"

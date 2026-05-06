@@ -3,6 +3,7 @@ import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
 import { provideHashbrown } from '@hashbrownai/angular';
+import { MERMAID_OPTIONS, provideMarkdown } from 'ngx-markdown';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -10,6 +11,15 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHashbrown({
       baseUrl: '/api/chat',
+    }),
+    provideMarkdown({
+      mermaidOptions: {
+        provide: MERMAID_OPTIONS,
+        useValue: {
+          darkMode: false,
+          look: 'classic',
+        },
+      },
     }),
   ],
 };

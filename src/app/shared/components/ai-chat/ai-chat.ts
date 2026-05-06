@@ -1,30 +1,36 @@
 import {
-  Component,
-  ChangeDetectionStrategy,
-  signal,
-  computed,
-  viewChild,
-  ElementRef,
   afterRenderEffect,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  ElementRef,
   inject,
+  signal,
+  viewChild
 } from '@angular/core';
-import { chatResource, createTool, MagicText } from '@hashbrownai/angular';
+import {
+  chatResource,
+  createTool,
+  exposeComponent, MagicText,
+  RenderMessageComponent,
+  UiChatMessage,
+  uiChatResource,
+} from '@hashbrownai/angular';
 import { IconComponent } from '../icon/icon';
 import { DataStoreService } from '../../../features/data/data-store.service';
-import { filterData, sortData, DataFilterService } from '../../../features/data/data-filter.service';
-import {
-  DataCategory,
-  DataRecord,
-  SortDir,
-  SortField,
-} from '../../../features/data/data.models';
+import { DataFilterService, filterData, sortData } from '../../../features/data/data-filter.service';
+import { DataCategory, SortDir, SortField } from '../../../features/data/data.models';
 import { Router } from '@angular/router';
 import { s } from '@hashbrownai/core';
 import { RouteNames } from '../../../app.routes';
 import {
   filterParamsSchema,
-  sortedDataParamsSchema,
+  lineDataSchema,
+  sortedDataParamsSchema
 } from '../../../hashbrown-schema/hashbrown-data-schema';
+import { LineChartComponent } from '../line-chart/line-chart';
+import { Markdown } from '../markdown/markdown';
+import { JsonPipe } from '@angular/common';
 
 type ChatMsg =
   | { role: 'user'; content: string }
@@ -43,29 +49,48 @@ interface FilterAppliedResult {
 @Component({
   selector: 'app-ai-chat',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MagicText, IconComponent],
+  imports: [IconComponent, RenderMessageComponent, JsonPipe, MagicText],
   templateUrl: './ai-chat.html',
   styleUrl: './ai-chat.css',
 })
 export class AiChatComponent {
   // ① Injecter les dépendances comme champs — toujours dans le contexte d'injection
-  private readonly router      = inject(Router);
-  private readonly dataStore   = inject(DataStoreService);
-  private readonly dataFilter  = inject(DataFilterService);
+  private readonly router = inject(Router);
+  private readonly dataStore = inject(DataStoreService);
+  private readonly dataFilter = inject(DataFilterService);
 
-  private readonly chat = chatResource({
+  private readonly chat = uiChatResource({
     model: 'openrouter/free',
     debugName: 'dashboard-assistant',
-    system: `Tu es un assistant IA intégré au tableau de bord DejTech.
-Tu aides les utilisateurs à :
-- Comprendre et analyser les données du dashboard
-- Naviguer dans l'application (Dashboard, Utilisateurs, Messagerie, Données)
-- Obtenir des insights sur les indicateurs clés de performance (KPI)
-- Répondre à des questions sur les statistiques affichées
+    system: `
+      Tu es un assistant IA intégré au tableau de bord DejTech.
+      Tu aides les utilisateurs à :
+      - Comprendre et analyser les données du dashboard
+      - Naviguer dans l'application (Dashboard, Utilisateurs, Messagerie, Données)
+      - Obtenir des insights sur les indicateurs clés de performance (KPI)
+      - Répondre à des questions et afficher des données sur les statistiques affichées
 
-Réponds toujours en français, de façon concise et utile.
-Si tu ne sais pas, dis-le clairement.`,
+      Réponds toujours en français, de façon concise et utile.
+      Si tu ne sais pas, dis-le clairement.
 
+      # Rules
+      - Utilise toujours le composant app-markdown pour les explication simple et concise.
+      - N'expose jamais des données interne ou des détails de code
+      - Pour les actions réalisable **précède** les explications avec les appels d'outils appropriés`,
+    components: [
+      exposeComponent(LineChartComponent, {
+        description: 'Affiche un graphique linéaire basé sur des données fournies. ',
+        input: {
+          data: s.array('liste des valeurs du graphique', lineDataSchema),
+        },
+      }),
+      exposeComponent(Markdown, {
+        description: 'Affiche du texte formaté en Markdown. Utile pour les réponses explicatives.',
+        input: {
+          content: s.streaming.string('texte markdown'),
+        },
+      }),
+    ],
     tools: [
       createTool({
         name: 'getData',
@@ -79,9 +104,9 @@ Si tu ne sais pas, dis-le clairement.`,
           'pour un rendu visuel immédiat. Utilise "all" pour ignorer un critère.',
         schema: filterParamsSchema,
         handler: async (params: {
-          search:   string;
+          search: string;
           category: DataCategory | 'all';
-          status:   string;
+          status: string;
         }): Promise<{ applied: FilterAppliedResult }> => {
           this.dataFilter.applyFilters(params);
           await this.router.navigate(['/data']);
@@ -96,16 +121,40 @@ Si tu ne sais pas, dis-le clairement.`,
           'Combine filtrage (search, category, status) et tri (sortField, sortDir).',
         schema: sortedDataParamsSchema,
         handler: async (params: {
-          search:    string;
-          category:  DataCategory | 'all';
-          status:    string;
+          search: string;
+          category: DataCategory | 'all';
+          status: string;
           sortField: SortField;
-          sortDir:   SortDir;
+          sortDir: SortDir;
         }): Promise<{ applied: FilterAppliedResult }> => {
           this.dataFilter.applyFilters(params);
           await this.router.navigate(['/data']);
-          const count = sortData(filterData(this.dataStore.getAll(), params), params.sortField, params.sortDir).length;
+          const count = sortData(
+            filterData(this.dataStore.getAll(), params),
+            params.sortField,
+            params.sortDir,
+          ).length;
           return { applied: { ...params, resultCount: count } };
+        },
+      }),
+      createTool({
+        name: 'getDataSorted',
+        description: `
+          Récupère les données triés en fonction de différents filtre
+        `,
+        schema: sortedDataParamsSchema,
+        handler: async (params: {
+          search: string;
+          category: DataCategory | 'all';
+          status: string;
+          sortField: SortField;
+          sortDir: SortDir;
+        }) => {
+          return sortData(
+            filterData(this.dataStore.getAll(), params),
+            params.sortField,
+            params.sortDir,
+          );
         },
       }),
       createTool({
@@ -137,11 +186,8 @@ Si tu ne sais pas, dis-le clairement.`,
   readonly messagesEl = viewChild<ElementRef<HTMLElement>>('messagesEl');
 
   inputText = signal('');
-  messages = computed(() => (this.chat.value() ?? []) as ChatMsg[]);
-  isSending = this.chat.isSending;
-  isReceiving = this.chat.isReceiving;
+  messages = computed(() => (this.chat.value() ?? []) as UiChatMessage[]);
   isLoading = this.chat.isLoading;
-  sendingError = this.chat.sendingError;
 
   readonly suggestions: string[] = [
     'Explique-moi les KPIs du dashboard',
@@ -163,7 +209,7 @@ Si tu ne sais pas, dis-le clairement.`,
   sendMessage(): void {
     const text = this.inputText().trim();
     if (!text || this.isLoading()) return;
-    this.chat.sendMessage({ role: 'user', content: text });
+    this.chat.sendMessage({ role: 'user', content: this.inputText() });
     this.inputText.set('');
   }
 
@@ -181,7 +227,6 @@ Si tu ne sais pas, dis-le clairement.`,
 
   isTyping(): boolean {
     const msgs = this.messages();
-    if (!this.isSending()) return false;
     if (msgs.length === 0) return true;
     return msgs[msgs.length - 1].role === 'user';
   }
