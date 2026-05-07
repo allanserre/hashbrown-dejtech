@@ -11,6 +11,12 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHashbrown({
       baseUrl: '/api/chat',
+      middleware: [
+        (req) => {
+          console.log('[Hashbrown Request]', req.body?.toString());
+          return req;
+        }
+      ]
     }),
     provideMarkdown({
       mermaidOptions: {

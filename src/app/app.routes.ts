@@ -27,6 +27,11 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/data/data').then(m => m.DataComponent),
       },
+      {
+        path: 'canvas',
+        loadComponent: () =>
+          import('./features/canvas/canvas').then(m => m.CanvasComponent),
+      },
     ],
   },
 ];
@@ -36,4 +41,5 @@ export enum RouteNames {
   Users     = 'users',
   Mails     = 'mails',
   Data      = 'data',
+  Canvas    = 'canvas',
 }

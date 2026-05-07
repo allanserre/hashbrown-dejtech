@@ -25,6 +25,7 @@ export class LayoutComponent {
     { label: 'Utilisateurs', icon: 'users',    route: '/users' },
     { label: 'Messagerie',   icon: 'mail',     route: '/mails' },
     { label: 'Données',      icon: 'database', route: '/data' },
+    { label: 'Canvas IA',    icon: 'layout',   route: '/canvas' },
   ];
 
   toggleSidebar(): void {

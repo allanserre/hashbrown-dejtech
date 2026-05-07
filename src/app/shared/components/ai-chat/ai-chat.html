@@ -49,7 +49,12 @@
           <div class="msg-bubble msg-bubble--assistant">
             {{ msg | json }}
             @if (msg.toolCalls.length > 0) {
-              {{ msg.toolCalls }}
+              @for (call of msg.toolCalls; track call.toolCallId) {
+                <div class="tool-call">
+                  <p class="tool-name">{{ call.name }}</p>
+<!--                  <pre class="tool-args">{{ call.args | json }}</pre>-->
+                </div>
+              }
             }
             @if (msg.content) {
               <hb-render-message [message]="msg" />

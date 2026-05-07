@@ -1,0 +1,72 @@
+<div class="canvas-layout">
+
+  <!-- ══ Zone principale ══ -->
+  <div class="canvas-main">
+
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">Canvas IA</h1>
+        <p class="page-sub">
+          @if (isEmpty()) {
+            Aucun bloc — demandez à l'assistant de générer des composants
+          } @else {
+            {{ canvas.blocks().length }} bloc(s) affiché(s)
+          }
+        </p>
+      </div>
+      @if (!isEmpty()) {
+        <button class="btn btn--outline btn--danger" type="button" (click)="clearAll()">
+          <app-icon name="trash" />
+          Tout effacer
+        </button>
+      }
+    </header>
+
+    <!-- Empty state -->
+    @if (isEmpty()) {
+      <div class="canvas-empty" role="status" aria-live="polite">
+        <div class="canvas-empty__icon" aria-hidden="true">
+          <app-icon name="layout" />
+        </div>
+        <p class="canvas-empty__title">Canvas vide</p>
+        <p class="canvas-empty__sub">
+          Utilisez l'assistant à droite pour générer des stat cards ou des graphiques.
+        </p>
+      </div>
+    }
+
+    <!-- Grille de blocs -->
+    @if (!isEmpty()) {
+      <div class="canvas-grid" role="list" aria-label="Blocs du canvas">
+        @for (block of canvas.blocks(); track block.id) {
+          <div class="canvas-block" role="listitem">
+            <button
+              class="canvas-block__remove"
+              type="button"
+              (click)="removeBlock(block.id)"
+              [attr.aria-label]="'Supprimer le bloc ' + block.type"
+            >
+              <app-icon name="x" />
+            </button>
+
+            @if (getComponent(block); as comp) {
+              <ng-container *ngComponentOutlet="comp; inputs: getInputs(block)" />
+            } @else {
+              <div class="canvas-block__unknown" role="alert">
+                Type inconnu : <code>{{ block.type }}</code>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+  </div>
+
+  <!-- ══ Chat latéral ══ -->
+  <aside class="canvas-sidebar" aria-label="Assistant canvas">
+    <app-canvas-chat />
+  </aside>
+
+</div>
+

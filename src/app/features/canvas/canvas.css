@@ -1,0 +1,153 @@
+/* ── Layout split ─────────────────────────────────────────────────────────── */
+.canvas-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ── Zone principale ── */
+.canvas-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--c-text);
+  margin: 0;
+}
+
+.page-sub {
+  font-size: .875rem;
+  color: var(--c-text-muted);
+  margin: .25rem 0 0;
+}
+
+.btn--danger {
+  color: var(--c-danger-fg);
+  border-color: var(--c-danger-fg);
+}
+.btn--danger:hover { background: var(--c-danger-bg); }
+
+/* ── Sidebar chat ── */
+.canvas-sidebar {
+  border-left: 1px solid var(--c-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Empty state ── */
+.canvas-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4rem 2rem;
+  gap: .75rem;
+  border: 2px dashed var(--c-border);
+  border-radius: var(--radius-lg);
+  background: var(--c-surface);
+  color: var(--c-text-muted);
+}
+
+.canvas-empty__icon {
+  width: 64px; height: 64px;
+  border-radius: var(--radius-full);
+  background: var(--c-primary-light);
+  color: var(--c-primary);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: .25rem;
+}
+
+.canvas-empty__title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--c-text);
+  margin: 0;
+}
+
+.canvas-empty__sub {
+  font-size: .875rem;
+  line-height: 1.6;
+  max-width: 320px;
+  margin: 0;
+}
+
+/* ── Grille de blocs ── */
+.canvas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+
+/* ── Bloc individuel ── */
+.canvas-block {
+  position: relative;
+  border-radius: var(--radius-lg);
+  transition: box-shadow var(--transition-fast);
+}
+
+.canvas-block:hover {
+  box-shadow: 0 0 0 2px var(--c-primary);
+}
+
+.canvas-block__remove {
+  position: absolute;
+  top: .5rem;
+  right: .5rem;
+  z-index: 10;
+  width: 26px; height: 26px;
+  border-radius: var(--radius-full);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  color: var(--c-text-muted);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0;
+  transition: opacity var(--transition-fast), color var(--transition-fast), background var(--transition-fast);
+}
+
+.canvas-block:hover .canvas-block__remove { opacity: 1; }
+
+.canvas-block__remove:hover {
+  color: var(--c-danger-fg);
+  background: var(--c-danger-bg);
+  border-color: var(--c-danger-fg);
+}
+
+.canvas-block__remove:focus-visible {
+  opacity: 1;
+  outline: 2px solid var(--c-primary);
+  outline-offset: 2px;
+}
+
+/* Fallback type inconnu */
+.canvas-block__unknown {
+  padding: 1rem;
+  background: var(--c-danger-bg);
+  color: var(--c-danger-fg);
+  border-radius: var(--radius);
+  font-size: .875rem;
+}
+.canvas-block__unknown code {
+  font-family: monospace;
+  font-weight: 700;
+}
+

@@ -1,0 +1,118 @@
+<div class="canvas-chat">
+
+  <!-- ── Header ── -->
+  <div class="canvas-chat__header">
+    <span class="canvas-chat__header-icon" aria-hidden="true">
+      <app-icon name="sparkles" />
+    </span>
+    <span class="canvas-chat__header-title">Assistant Canvas</span>
+  </div>
+
+  <!-- ── Messages ── -->
+  <div
+    class="canvas-chat__messages"
+    role="log"
+    aria-live="polite"
+    aria-label="Conversation avec l'assistant canvas"
+    #messagesEl
+  >
+    <!-- Empty state -->
+    @if (messages().length === 0) {
+      <div class="canvas-chat__empty">
+        <p class="canvas-chat__empty-title">Générez des blocs</p>
+        <p class="canvas-chat__empty-sub">Décrivez les statistiques ou graphiques à afficher.</p>
+        <ul class="canvas-chat__suggestions" aria-label="Suggestions">
+          @for (s of suggestions; track s) {
+            <li>
+              <button
+                class="canvas-chat__suggestion"
+                type="button"
+                (click)="sendSuggestion(s)"
+                [attr.disabled]="isLoading() ? '' : null"
+              >{{ s }}</button>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+
+    <!-- Message list -->
+    @for (msg of messages(); track $index) {
+      @if (msg.role === 'user') {
+        <article class="canvas-chat__msg canvas-chat__msg--user" aria-label="Votre message">
+          <div class="canvas-chat__bubble canvas-chat__bubble--user">
+            {{ textContent(msg) }}
+          </div>
+        </article>
+      } @else if (msg.role === 'assistant') {
+        @let tools = toolCallNames(msg);
+        @let txt   = textContent(msg);
+        @if (tools.length > 0 || txt) {
+          <article class="canvas-chat__msg canvas-chat__msg--assistant" aria-label="Réponse de l'assistant">
+            <div class="canvas-chat__avatar" aria-hidden="true">
+              <app-icon name="bot" />
+            </div>
+            <div class="canvas-chat__bubble canvas-chat__bubble--assistant">
+              @if (tools.length > 0) {
+                <ul class="canvas-chat__tools" aria-label="Outils appelés">
+                  @for (name of tools; track name) {
+                    <li class="canvas-chat__tool-badge">
+                      <app-icon name="zap" />
+                      {{ name }}
+                    </li>
+                  }
+                </ul>
+              }
+              @if (txt) {
+                <p>{{ txt }}</p>
+              }
+            </div>
+          </article>
+        }
+      }
+    }
+
+    <!-- Typing indicator -->
+    @if (isTyping()) {
+      <div class="canvas-chat__msg canvas-chat__msg--assistant" aria-label="L'assistant travaille…">
+        <div class="canvas-chat__avatar" aria-hidden="true">
+          <app-icon name="bot" />
+        </div>
+        <div class="canvas-chat__bubble canvas-chat__bubble--assistant canvas-chat__bubble--typing" aria-hidden="true">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- ── Input ── -->
+  <div class="canvas-chat__input-area">
+    <label class="sr-only" for="canvas-chat-input">Votre message</label>
+    <textarea
+      id="canvas-chat-input"
+      class="canvas-chat__textarea"
+      placeholder="Décrivez un bloc à ajouter…"
+      rows="1"
+      [value]="inputText()"
+      (input)="inputText.set($any($event.target).value)"
+      (keydown)="onKeydown($event)"
+      [attr.disabled]="isLoading() ? '' : null"
+      aria-label="Message pour l'assistant canvas"
+    ></textarea>
+    <button
+      class="canvas-chat__send"
+      type="button"
+      (click)="sendMessage()"
+      [attr.disabled]="(!inputText().trim() || isLoading()) ? '' : null"
+      aria-label="Envoyer"
+    >
+      @if (isLoading()) {
+        <span class="spinner" aria-hidden="true"></span>
+      } @else {
+        <app-icon name="send" />
+      }
+    </button>
+  </div>
+
+</div>
+
